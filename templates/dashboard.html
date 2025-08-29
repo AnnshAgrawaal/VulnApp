@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - VulnApp{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+    <p class="text-gray-600">Welcome, {{ username }}! Explore the vulnerable features below.</p>
+</div>
+
+<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
+    <p class="text-sm">
+        ⚠️ <strong>A01: Broken Access Control</strong> - This dashboard is accessible without proper authentication!
+    </p>
+</div>
+
+<!-- Vulnerable Features Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Admin Panel -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-red-700 mb-2">Admin Panel</h3>
+        <p class="text-gray-600 mb-4">Access admin features without authentication</p>
+        <div class="bg-red-50 p-3 rounded mb-4">
+            <p class="text-xs text-red-600"><strong>Vulnerability:</strong> A01 - Broken Access Control</p>
+        </div>
+        <a href="{{ url_for('admin') }}" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 inline-block">
+            Access Admin Panel
+        </a>
+    </div>
+
+    <!-- User Profile -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-orange-700 mb-2">User Profile</h3>
+        <p class="text-gray-600 mb-4">View and edit profile with XSS vulnerability</p>
+        <div class="bg-orange-50 p-3 rounded mb-4">
+            <p class="text-xs text-orange-600"><strong>Vulnerability:</strong> A03 - XSS Injection</p>
+        </div>
+        <a href="{{ url_for('profile') }}" class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 inline-block">
+            View Profile
+        </a>
+    </div>
+
+    <!-- Search/SSRF -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-yellow-700 mb-2">URL Fetcher</h3>
+        <p class="text-gray-600 mb-4">Fetch external URLs (SSRF vulnerability)</p>
+        <div class="bg-yellow-50 p-3 rounded mb-4">
+            <p class="text-xs text-yellow-600"><strong>Vulnerability:</strong> A05 - SSRF</p>
+        </div>
+        <a href="{{ url_for('search') }}" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 inline-block">
+            URL Fetcher
+        </a>
+    </div>
+
+    <!-- Settings -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-blue-700 mb-2">Settings</h3>
+        <p class="text-gray-600 mb-4">View app configuration and secrets</p>
+        <div class="bg-blue-50 p-3 rounded mb-4">
+            <p class="text-xs text-blue-600"><strong>Vulnerability:</strong> A02 - Crypto Failures</p>
+        </div>
+        <a href="{{ url_for('settings') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">
+            View Settings
+        </a>
+    </div>
+
+    <!-- Direct Object Reference -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-green-700 mb-2">User Lookup</h3>
+        <p class="text-gray-600 mb-4">Look up any user by ID (no auth required)</p>
+        <div class="bg-green-50 p-3 rounded mb-4">
+            <p class="text-xs text-green-600"><strong>Vulnerability:</strong> A01 - Direct Object Reference</p>
+        </div>
+        <div class="flex space-x-2">
+            <input type="number" id="userId" placeholder="User ID" min="1" 
+                   class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm">
+            <button onclick="lookupUser()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">
+                Lookup
+            </button>
+        </div>
+        <div id="userResult" class="mt-2 text-sm"></div>
+    </div>
+
+    <!-- Debug Info -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-purple-700 mb-2">Debug Information</h3>
+        <p class="text-gray-600 mb-4">Debug mode exposes sensitive information</p>
+        <div class="bg-purple-50 p-3 rounded mb-4">
+            <p class="text-xs text-purple-600"><strong>Vulnerability:</strong> A05 - Security Misconfiguration</p>
+        </div>
+        <button onclick="triggerError()" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+            Trigger Debug Error
+        </button>
+    </div>
+</div>
+
+<script>
+function lookupUser() {
+    const userId = document.getElementById('userId').value;
+    if (!userId) return;
+
+    fetch(`/users/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('userResult').innerHTML = 
+                    `<div class="text-red-600">Error: ${data.error}</div>`;
+            } else {
+                document.getElementById('userResult').innerHTML = 
+                    `<div class="bg-gray-50 p-2 rounded">
+                        <strong>${data.username}</strong><br>
+                        Email: ${data.email}<br>
+                        Role: ${data.role}
+                    </div>`;
+            }
+        })
+        .catch(error => {
+            document.getElementById('userResult').innerHTML = 
+                `<div class="text-red-600">Error: ${error}</div>`;
+        });
+}
+
+function triggerError() {
+    // Access a non-existent route to trigger debug error
+    fetch('/nonexistent-route')
+        .then(response => response.text())
+        .then(data => {
+            alert('Check the browser console and server logs for debug information!');
+        });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - VulnApp{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">Admin Panel</h1>
+    <p class="text-red-600">⚠️ A01: Broken Access Control - No authentication required!</p>
+</div>
+
+<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
+    <p><strong>Security Issue:</strong> This admin panel is accessible without any authentication or authorization checks. 
+    In a real application, this would be a critical vulnerability allowing unauthorized access to sensitive administrative functions.</p>
+</div>
+
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">All Users</h2>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Password</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profile</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for user in users %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ user[0] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ user[1] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-mono">{{ user[2] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user[3] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                               {% if user[4] == 'admin' %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                            {{ user[4] }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ user[5] or 'No profile' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-6 bg-yellow-50 p-4 rounded">
+        <h3 class="text-sm font-semibold text-yellow-800">Exposed Vulnerabilities:</h3>
+        <ul class="text-xs text-yellow-700 mt-2 space-y-1">
+            <li>• <strong>A01:</strong> No access control - anyone can access admin functions</li>
+            <li>• <strong>A02:</strong> Plaintext passwords visible to unauthorized users</li>
+            <li>• <strong>A04:</strong> Insecure design - sensitive data displayed without protection</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

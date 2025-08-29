@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Login - VulnApp{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Login</h2>
+        <p class="text-red-600 text-sm mt-2">⚠️ This form is vulnerable to SQL injection</p>
+    </div>
+
+    <!-- Regular Login Form -->
+    <form id="loginForm" method="POST" action="{{ url_for('login') }}">
+        <div class="mb-4">
+            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+            <input type="text" id="username" name="username" required 
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+        </div>
+
+        <div class="mb-6">
+            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" id="password" name="password" required
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+        </div>
+
+        <button type="submit" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 mb-4">
+            Login
+        </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="relative mb-4">
+        <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-gray-500">Or continue with</span>
+        </div>
+    </div>
+
+    <!-- Google Login Button (Phishing Demo) -->
+    <button onclick="openFakeGooglePopup()" class="w-full flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Sign in with Google
+    </button>
+
+    <!-- SQL Injection Examples -->
+    <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded p-4">
+        <h3 class="text-sm font-semibold text-yellow-800">SQL Injection Test Cases:</h3>
+        <div class="text-xs text-yellow-700 mt-2 space-y-1">
+            <p><strong>Bypass login:</strong> <code>' OR '1'='1' --</code></p>
+            <p><strong>Admin access:</strong> <code>admin'--</code></p>
+            <p><strong>Union attack:</strong> <code>' UNION SELECT 1,username,password,email,role FROM users--</code></p>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('register') }}" class="text-red-600 hover:text-red-500 text-sm">Don't have an account? Register here</a>
+    </div>
+</div>
+
+<!-- Fake Google OAuth Popup (Hidden by default) -->
+<div id="fakeGooglePopup" class="fixed inset-0 z-50 hidden">
+    <!-- Background overlay -->
+    <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+
+    <!-- Fake Browser Window (Windows Style) -->
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 bg-white shadow-2xl overflow-hidden border border-gray-300" style="border-radius: 0;">
+        <!-- Windows-Style Browser Header -->
+        <div class="bg-gray-50 px-4 py-2 flex items-center justify-between border-b border-gray-300">
+            <!-- Left side - favicon and title -->
+            <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="text-sm text-gray-700 truncate">Sign in - Google Accounts</span>
+            </div>
+
+            <!-- Right side - Windows controls -->
+            <div class="flex items-center space-x-0">
+                <!-- Minimize button -->
+                <button class="w-8 h-8 flex items-center justify-center hover:bg-gray-200 text-gray-600">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4"></path>
+                    </svg>
+                </button>
+                <!-- Maximize/Restore button -->
+                <button class="w-8 h-8 flex items-center justify-center hover:bg-gray-200 text-gray-600">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16v16H4V4z"></path>
+                    </svg>
+                </button>
+                <!-- Close button -->
+                <button onclick="closeFakeGooglePopup()" class="w-8 h-8 flex items-center justify-center hover:bg-red-500 hover:text-white text-gray-600 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Windows-Style Address Bar -->
+        <div class="bg-white px-4 py-2 border-b border-gray-300 flex items-center">
+            <!-- Navigation buttons -->
+            <div class="flex items-center space-x-1 mr-3">
+                <button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+                <button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Address bar -->
+            <div class="flex items-center space-x-2 flex-1">
+                <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="text-sm text-gray-700 bg-gray-50 px-3 py-1 flex-1 truncate border border-gray-200" style="border-radius: 0;">https://accounts.google.com/oauth/authorize</span>
+            </div>
+
+            <!-- Menu button -->
+            <button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 ml-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Fake Google Login Content -->
+        <div class="p-8 bg-white">
+            <!-- Google Logo -->
+            <div class="text-center mb-6">
+                <svg width="75" height="24" viewBox="0 0 75 24" class="mx-auto">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.79-.07-1.54-.2-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.57-5.17 3.57-8.82z"/>
+                    <path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"/>
+                    <path fill="#FBBC05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 000 10.76l3.98-3.09z"/>
+                    <path fill="#EA4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/>
+                </svg>
+            </div>
+
+            <h1 class="text-2xl text-gray-900 text-center mb-2">Sign in</h1>
+            <p class="text-sm text-gray-600 text-center mb-6">Continue to VulnApp</p>
+
+            <!-- Fake Google Login Form -->
+            <form id="fakeGoogleForm">
+                <div class="mb-4">
+                    <input type="email" id="fakeEmail" name="email" placeholder="Email or phone" required
+                           class="w-full px-3 py-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style="border-radius: 0;">
+                </div>
+                <div class="mb-6">
+                    <input type="password" id="fakePassword" name="password" placeholder="Enter your password" required
+                           class="w-full px-3 py-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style="border-radius: 0;">
+                </div>
+
+                <div class="flex justify-between items-center mb-6">
+                    <a href="#" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
+                    <a href="#" class="text-sm text-blue-600 hover:underline">Create account</a>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeFakeGooglePopup()" class="px-6 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50" style="border-radius: 0;">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700" style="border-radius: 0;">
+                        Next
+                    </button>
+                </div>
+            </form>
+
+            <!-- Fake Footer -->
+            <div class="mt-8 pt-4 border-t border-gray-200">
+                <div class="flex justify-between text-xs text-gray-500">
+                    <select class="bg-transparent">
+                        <option>English (United States)</option>
+                    </select>
+                    <div class="space-x-4">
+                        <a href="#" class="hover:underline">Help</a>
+                        <a href="#" class="hover:underline">Privacy</a>
+                        <a href="#" class="hover:underline">Terms</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Regular login form handler
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch('{{ url_for("login") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Login successful!');
+            window.location.href = '{{ url_for("dashboard") }}';
+        } else {
+            alert('Login failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Error: ' + error);
+    });
+});
+
+// Fake Google OAuth Popup Functions
+function openFakeGooglePopup() {
+    document.getElementById('fakeGooglePopup').classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function closeFakeGooglePopup() {
+    document.getElementById('fakeGooglePopup').classList.add('hidden');
+    document.body.style.overflow = 'auto'; // Restore scrolling
+    // Clear form
+    document.getElementById('fakeGoogleForm').reset();
+}
+
+// Fake Google Form Handler (Phishing Demo)
+document.getElementById('fakeGoogleForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('fakeEmail').value;
+    const password = document.getElementById('fakePassword').value;
+
+    // Close the popup first
+    closeFakeGooglePopup();
+
+    // Show educational alert after a brief delay
+    setTimeout(function() {
+        alert(
+            '🚨 PHISHING ATTACK DEMONSTRATION 🚨\n\n' +
+            'You just fell victim to a "Browser-in-Browser" phishing attack!\n\n' +
+            '📧 Email captured: ' + email + '\n' +
+            '🔐 Password captured: ' + password + '\n\n' +
+            'What you just experienced:\n' +
+            '• Fake popup window mimicking Google OAuth\n' +
+            '• Realistic Windows browser window with fake address bar\n' +
+            '• Authentic Google styling and branding\n' +
+            '• Your credentials were captured and could be sent to attackers\n\n' +
+            '🛡️ How to protect yourself:\n' +
+            '• Always check the REAL browser address bar\n' +
+            '• Look for subtle UI differences\n' +
+            '• Use password managers with domain verification\n' +
+            '• Enable 2FA whenever possible\n\n' +
+            'Remember: This was just a demonstration - your real credentials are safe!'
+        );
+    }, 500);
+});
+
+// Close popup when clicking outside
+document.getElementById('fakeGooglePopup').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeFakeGooglePopup();
+    }
+});
+</script>
+
+<style>
+/* Additional styling for the fake popup */
+#fakeGooglePopup {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Make the fake popup look more realistic with Windows styling */
+#fakeGooglePopup .bg-white {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Animate the popup */
+#fakeGooglePopup:not(.hidden) .bg-white {
+    animation: popupAppear 0.3s ease-out;
+}
+
+@keyframes popupAppear {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Windows-style button hover effects */
+#fakeGooglePopup button:hover {
+    transition: background-color 0.15s ease;
+}
+</style>
+{% endblock %}

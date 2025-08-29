@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}URL Fetcher - VulnApp{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">URL Fetcher</h1>
+    <p class="text-yellow-600">⚠️ A05: Server-Side Request Forgery (SSRF) Vulnerability</p>
+</div>
+
+<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
+    <p><strong>Security Issue:</strong> This feature fetches external URLs without validation, 
+    allowing attackers to access internal services, localhost, and other restricted resources.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- URL Fetcher Form -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Fetch URL Content</h2>
+
+        <form id="fetchForm">
+            <div class="mb-4">
+                <label for="url" class="block text-sm font-medium text-gray-700">URL to Fetch</label>
+                <input type="text" id="url" name="url" 
+                       placeholder="https://example.com"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
+                <p class="text-xs text-yellow-500 mt-1">⚠️ No URL validation - SSRF vulnerability present</p>
+            </div>
+
+            <button type="submit" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+                Fetch Content
+            </button>
+        </form>
+
+        <!-- SSRF Test Cases -->
+        <div class="mt-6 bg-red-50 border border-red-200 rounded p-4">
+            <h3 class="text-sm font-semibold text-red-800">SSRF Test URLs:</h3>
+            <div class="text-xs text-red-700 mt-2 space-y-1">
+                <button onclick="setUrl('http://localhost:5000')" 
+                        class="block text-left hover:bg-red-100 p-1 rounded w-full">
+                    <code>http://localhost:5000</code> - Access local server
+                </button>
+                <button onclick="setUrl('http://127.0.0.1:22')" 
+                        class="block text-left hover:bg-red-100 p-1 rounded w-full">
+                    <code>http://127.0.0.1:22</code> - SSH port scan
+                </button>
+                <button onclick="setUrl('http://169.254.169.254/latest/meta-data/')" 
+                        class="block text-left hover:bg-red-100 p-1 rounded w-full">
+                    <code>http://169.254.169.254/latest/meta-data/</code> - AWS metadata
+                </button>
+                <button onclick="setUrl('file:///etc/passwd')" 
+                        class="block text-left hover:bg-red-100 p-1 rounded w-full">
+                    <code>file:///etc/passwd</code> - Local file access
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Display -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Fetch Results</h2>
+
+        <div id="results" class="text-sm text-gray-500">
+            Enter a URL and click "Fetch Content" to see the results...
+        </div>
+    </div>
+</div>
+
+<script>
+function setUrl(url) {
+    document.getElementById('url').value = url;
+}
+
+document.getElementById('fetchForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const url = document.getElementById('url').value;
+    if (!url) return;
+
+    document.getElementById('results').innerHTML = 
+        '<div class="text-blue-600">Fetching content...</div>';
+
+    const formData = new FormData();
+    formData.append('url', url);
+
+    fetch('{{ url_for("search") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('results').innerHTML = 
+                `<div class="border border-gray-200 rounded p-4">
+                    <div class="mb-2 text-sm font-medium text-green-600">
+                        Status: ${data.status_code}
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded font-mono text-xs overflow-auto max-h-96">
+                        ${data.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                    </div>
+                </div>`;
+        } else {
+            document.getElementById('results').innerHTML = 
+                `<div class="text-red-600">Error: ${data.message}</div>`;
+        }
+    })
+    .catch(error => {
+        document.getElementById('results').innerHTML = 
+            `<div class="text-red-600">Request failed: ${error}</div>`;
+    });
+});
+</script>
+{% endblock %}

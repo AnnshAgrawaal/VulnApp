@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - VulnApp{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">Application Settings</h1>
+    <p class="text-blue-600">⚠️ A02: Cryptographic Failures - Exposed Configuration</p>
+</div>
+
+<div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6">
+    <p><strong>Security Issue:</strong> Application configuration and secrets are exposed to users. 
+    This information can be used by attackers to compromise the application.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Configuration Display -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Application Configuration</h2>
+
+        <div class="space-y-4">
+            <div class="border-b pb-2">
+                <label class="text-sm font-medium text-gray-500">Secret Key:</label>
+                <p class="text-red-600 font-mono text-sm bg-red-50 p-2 rounded mt-1">{{ config.secret_key }}</p>
+                <p class="text-xs text-red-500">⚠️ Hardcoded secret key exposed</p>
+            </div>
+
+            <div class="border-b pb-2">
+                <label class="text-sm font-medium text-gray-500">Debug Mode:</label>
+                <p class="text-gray-900">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                           {% if config.debug_mode %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                        {{ 'Enabled' if config.debug_mode else 'Disabled' }}
+                    </span>
+                </p>
+                {% if config.debug_mode %}
+                <p class="text-xs text-red-500">⚠️ Debug mode should be disabled in production</p>
+                {% endif %}
+            </div>
+
+            <div class="border-b pb-2">
+                <label class="text-sm font-medium text-gray-500">Database:</label>
+                <p class="text-gray-900 font-mono text-sm">{{ config.database }}</p>
+            </div>
+
+            <div>
+                <label class="text-sm font-medium text-gray-500">Version:</label>
+                <p class="text-gray-900">{{ config.version }}</p>
+            </div>
+        </div>
+
+        <div class="mt-6 bg-red-50 p-4 rounded">
+            <h3 class="text-sm font-semibold text-red-800">Exposed Vulnerabilities:</h3>
+            <ul class="text-xs text-red-700 mt-2 space-y-1">
+                <li>• <strong>A02:</strong> Hardcoded secret key in source code</li>
+                <li>• <strong>A05:</strong> Debug mode enabled in production</li>
+                <li>• <strong>A05:</strong> Configuration details exposed to users</li>
+                <li>• <strong>A04:</strong> No access controls on sensitive settings</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Security Information -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Security Analysis</h2>
+
+        <div class="space-y-4">
+            <div class="bg-red-50 p-4 rounded border-l-4 border-red-500">
+                <h3 class="font-semibold text-red-800">Critical Issues</h3>
+                <ul class="text-sm text-red-700 mt-2 space-y-1">
+                    <li>• Secret key is hardcoded and visible</li>
+                    <li>• Debug mode exposes stack traces</li>
+                    <li>• No environment-based configuration</li>
+                </ul>
+            </div>
+
+            <div class="bg-orange-50 p-4 rounded border-l-4 border-orange-500">
+                <h3 class="font-semibold text-orange-800">Recommendations</h3>
+                <ul class="text-sm text-orange-700 mt-2 space-y-1">
+                    <li>• Use environment variables for secrets</li>
+                    <li>• Disable debug mode in production</li>
+                    <li>• Implement proper access controls</li>
+                    <li>• Use secure session management</li>
+                </ul>
+            </div>
+
+            <div class="bg-yellow-50 p-4 rounded border-l-4 border-yellow-500">
+                <h3 class="font-semibold text-yellow-800">Additional Notes</h3>
+                <p class="text-sm text-yellow-700 mt-2">
+                    This settings page should never be accessible to regular users and 
+                    should certainly never expose sensitive configuration details like 
+                    secret keys and database paths.
+                </p>
+            </div>
+        </div>
+
+        <!-- Mock Actions -->
+        <div class="mt-6 space-y-2">
+            <button onclick="regenerateKey()" 
+                    class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Regenerate Secret Key
+            </button>
+            <button onclick="toggleDebug()" 
+                    class="w-full bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700">
+                Toggle Debug Mode
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function regenerateKey() {
+    alert('In a real application, this would regenerate the secret key!\n\nCurrent key: {{ config.secret_key }}');
+}
+
+function toggleDebug() {
+    alert('Debug mode toggle attempted!\n\nNote: This exposes sensitive application information.');
+}
+</script>
+{% endblock %}
